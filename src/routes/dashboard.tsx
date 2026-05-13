@@ -212,6 +212,9 @@ function DashboardPage() {
               </Link>
             )}
           </div>
+          <div className="mt-4">
+            <PendingGenerations />
+          </div>
           {docsLoading ? (
             <div className="mt-4 h-24 animate-pulse rounded-xl border border-border bg-surface" />
           ) : docs.length === 0 ? (
