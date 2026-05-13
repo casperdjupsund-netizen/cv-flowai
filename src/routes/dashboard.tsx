@@ -193,7 +193,17 @@ function DashboardPage() {
         </div>
 
         <div className="mt-12">
-          <h2 className="font-display text-xl font-semibold">Dokumenttini</h2>
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="font-display text-xl font-semibold">Viimeisimmät dokumentit</h2>
+            {docs.length > 0 && (
+              <Link
+                to="/history"
+                className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline"
+              >
+                Koko historia <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            )}
+          </div>
           {docsLoading ? (
             <div className="mt-4 h-24 animate-pulse rounded-xl border border-border bg-surface" />
           ) : docs.length === 0 ? (
