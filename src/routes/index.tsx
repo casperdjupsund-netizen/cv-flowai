@@ -26,6 +26,7 @@ function LandingPage() {
       <DocTypes />
       <SuccessStories />
       <Testimonials />
+      <FAQ />
       <CTA />
       <SiteFooter />
     </div>
