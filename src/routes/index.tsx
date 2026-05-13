@@ -91,9 +91,9 @@ function Stats() {
 
 function HowItWorks() {
   const steps = [
-    { icon: UserSquare2, title: "1. Täytä profiili kerran", desc: "Henkilötiedot, työkokemus, koulutus ja taidot tallennetaan turvallisesti." },
-    { icon: ClipboardList, title: "2. Liitä työilmoitus", desc: "Tekoäly analysoi tehtävän vaatimukset ja räätälöi sisällön." },
-    { icon: Pencil, title: "3. Muokkaa ja lataa", desc: "Hienosäädä visuaalisessa editorissa ja lataa PDF:nä." },
+    { icon: UserSquare2, iconName: "UserSquare2", title: "1. Täytä profiili kerran", desc: "Henkilötiedot, työkokemus, koulutus ja taidot tallennetaan turvallisesti." },
+    { icon: ClipboardList, iconName: "ClipboardList", title: "2. Liitä työilmoitus", desc: "Tekoäly analysoi tehtävän vaatimukset ja räätälöi sisällön." },
+    { icon: Pencil, iconName: "Pencil", title: "3. Muokkaa ja lataa", desc: "Hienosäädä visuaalisessa editorissa ja lataa PDF:nä." },
   ];
   return (
     <section id="how" className="py-24">
@@ -219,7 +219,39 @@ function FAQ() {
     {
       q: "Mitä maksullinen versio sisältää?",
       a: "Maksullinen versio maksaa 14,99 € / kk ja sisältää rajattoman määrän CV:itä, saatekirjeitä ja rekrytointisähköposteja.",
-...
+    },
+  ];
+
+  return (
+    <section className="py-24">
+      <div className="mx-auto max-w-3xl px-6">
+        <div className="text-center">
+          <h2 className="font-display text-4xl font-bold tracking-tight">Usein kysytyt kysymykset</h2>
+          <p className="mt-3 text-muted-foreground">Vastauksia yleisimpiin kysymyksiin.</p>
+        </div>
+        <div className="mt-12 space-y-8">
+          {items.map((item) => (
+            <div key={item.q} className="rounded-xl border border-border bg-surface p-6">
+              <div className="flex items-start gap-3">
+                <HelpCircle className="mt-1 h-5 w-5 shrink-0 text-primary" />
+                <div>
+                  <h3 className="font-display text-lg font-semibold">{item.q}</h3>
+                  <p className="mt-2 text-muted-foreground">{item.a}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function CTA() {
+  return (
+    <section className="border-t border-border py-24">
+      <div className="mx-auto max-w-5xl px-6 text-center">
+        <h2 className="font-display text-4xl font-bold tracking-tight">Valmiina aloittamaan?</h2>
         <p className="mt-4 text-muted-foreground">Yksi CV, saatekirje ja rekrytointisähköposti veloituksetta. Sen jälkeen 14,99 € / kk rajattomasti.</p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
           <Link
