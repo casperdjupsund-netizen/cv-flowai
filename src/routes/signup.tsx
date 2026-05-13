@@ -89,7 +89,7 @@ export function AuthShell({ title, subtitle, children }: { title: string; subtit
 
 function Field({
   label, type, value, onChange, ...rest
-}: { label: string; type: string; value: string; onChange: (v: string) => void } & React.InputHTMLAttributes<HTMLInputElement>) {
+}: { label: string; type: string; value: string; onChange: (v: string) => void } & Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange" | "value" | "type">) {
   return (
     <label className="block">
       <span className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</span>
