@@ -3,7 +3,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import {
   Sparkles, FileText, Mail, Send, ArrowRight, Star, Check,
-  UserSquare2, ClipboardList, Pencil
+  UserSquare2, ClipboardList, Pencil, HelpCircle
 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
