@@ -3,10 +3,7 @@ import { z } from "zod";
 import { generateText, Output } from "ai";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createLovableAiGatewayProvider } from "@/lib/ai-gateway";
-import {
-  formatProfileContextAsPrompt,
-  loadProfileContext,
-} from "@/lib/profile-context.functions";
+import { formatProfileContextAsPrompt, loadProfileContext } from "@/lib/profile-context.functions";
 
 const DocTypeSchema = z.enum(["cv", "cover_letter", "email"]);
 
@@ -62,11 +59,7 @@ export const generateDocument = createServerFn({ method: "POST" })
 
     // 1. Tarkista käyttöraja (free tier: 1 / tyyppi)
     const [{ data: profileTier }, { count }] = await Promise.all([
-      supabase
-        .from("profiles")
-        .select("subscription_tier")
-        .eq("id", userId)
-        .maybeSingle(),
+      supabase.from("profiles").select("subscription_tier").eq("id", userId).maybeSingle(),
       supabase
         .from("documents")
         .select("id", { count: "exact", head: true })
@@ -97,7 +90,7 @@ export const generateDocument = createServerFn({ method: "POST" })
 
     // 3. Generoi
     const gateway = createLovableAiGatewayProvider(apiKey);
-    const model = gateway("google/gemini-3-flash-preview");
+    const model = gateway("google/gemini-2.0-flash");
 
     try {
       const { output } = await generateText({
