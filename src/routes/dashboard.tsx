@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/lib/auth";
 import { SiteHeader } from "@/components/site-header";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
-import { FileText, Mail, Send, UserSquare2, ArrowRight, Lock, Sparkles, Download, Eye, Loader2 } from "lucide-react";
+import { FileText, Mail, Send, UserSquare2, ArrowRight, Lock, Sparkles, Download, Eye, Loader2, PenLine } from "lucide-react";
 import { useDocumentUsage, DOC_TYPE_LABELS, FREE_MONTHLY_LIMIT, type DocType } from "@/lib/usage";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -145,15 +145,26 @@ function DashboardPage() {
 
         <div className="mt-10">
           <h2 className="font-display text-xl font-semibold">Profiili</h2>
-          <Link to="/profile" className="mt-4 block">
-            <div className="rounded-xl border border-border bg-surface p-6 transition hover:border-primary/50">
-              <UserSquare2 className="h-6 w-6 text-primary" />
-              <h3 className="mt-4 font-display text-lg font-semibold">Profiilini</h3>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Täytä henkilötiedot, työkokemus ja koulutus.
-              </p>
-            </div>
-          </Link>
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
+            <Link to="/profile" className="block">
+              <div className="rounded-xl border border-border bg-surface p-6 transition hover:border-primary/50">
+                <UserSquare2 className="h-6 w-6 text-primary" />
+                <h3 className="mt-4 font-display text-lg font-semibold">Profiilini</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Täytä henkilötiedot, työkokemus ja koulutus.
+                </p>
+              </div>
+            </Link>
+            <Link to="/builder" className="block">
+              <div className="rounded-xl border border-border bg-surface p-6 transition hover:border-primary/50">
+                <PenLine className="h-6 w-6 text-primary" />
+                <h3 className="mt-4 font-display text-lg font-semibold">CV Builder</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Rakenna ja muokkaa CV visuaalisella editorilla.
+                </p>
+              </div>
+            </Link>
+          </div>
         </div>
 
         <div className="mt-10">
