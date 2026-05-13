@@ -5,7 +5,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createLovableAiGatewayProvider } from "@/lib/ai-gateway";
 import {
   formatProfileContextAsPrompt,
-  type ProfileContext,
+  loadProfileContext,
 } from "@/lib/profile-context.functions";
 
 const DocTypeSchema = z.enum(["cv", "cover_letter", "email"]);
