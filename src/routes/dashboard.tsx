@@ -212,7 +212,7 @@ function DashboardPage() {
             </p>
           ) : (
             <ul className="mt-4 space-y-3">
-              {docs.map((d) => {
+              {docs.slice(0, 5).map((d) => {
                 const label = DOC_TYPE_LABELS[d.type as DocType] ?? d.type;
                 return (
                   <li
