@@ -10,6 +10,8 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { downloadDocumentPdf, type DocumentRecord } from "@/lib/pdf";
 import { generateDocument } from "@/lib/generate-document.functions";
+import { useGenerationTracker, useOnGenerationDone } from "@/lib/generation-tracker";
+import { PendingGenerations } from "@/components/PendingGenerations";
 import {
   Dialog,
   DialogContent,
@@ -67,8 +69,21 @@ function DashboardPage() {
 
   const [activeType, setActiveType] = useState<DocType | null>(null);
   const [jobPosting, setJobPosting] = useState("");
-  const [generating, setGenerating] = useState(false);
   const generateFn = useServerFn(generateDocument);
+  const tracker = useGenerationTracker();
+
+  // Refresh usage + recent docs when any generation finishes (even from another page).
+  useOnGenerationDone(async (job) => {
+    await usage.refresh();
+    if (job.status === "done" && user) {
+      const { data } = await supabase
+        .from("documents")
+        .select("id, type, created_at, job_posting, content")
+        .eq("profile_id", user.id)
+        .order("created_at", { ascending: false });
+      setDocs((data ?? []) as DocumentRecord[]);
+    }
+  });
 
   const handleCreate = (type: DocType) => {
     if (!usage.canCreate(type)) {
@@ -80,30 +95,23 @@ function DashboardPage() {
     setJobPosting("");
   };
 
-  const handleGenerate = async () => {
+  const handleGenerate = () => {
     if (!activeType || jobPosting.trim().length < 10) {
       toast.error("Liitä ensin työpaikkailmoituksen teksti.");
       return;
     }
-    setGenerating(true);
-    try {
-      const res = await generateFn({
-        data: { type: activeType, job_posting: jobPosting.trim() },
-      });
-      if (!res.ok) {
-        toast.error(res.error);
-        if ("upgrade" in res && res.upgrade) navigate({ to: "/upgrade" });
-        return;
+    const type = activeType;
+    const posting = jobPosting.trim();
+    tracker.start(type, posting, async () => {
+      const res = await generateFn({ data: { type, job_posting: posting } });
+      if (!res.ok && "upgrade" in res && res.upgrade) {
+        navigate({ to: "/upgrade" });
       }
-      toast.success("Dokumentti luotu!");
-      setActiveType(null);
-      await usage.refresh();
-      navigate({ to: "/documents/$id", params: { id: res.id } });
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Generointi epäonnistui");
-    } finally {
-      setGenerating(false);
-    }
+      return res;
+    });
+    toast(`Generointi aloitettu — saat ilmoituksen kun ${DOC_TYPE_LABELS[type].toLowerCase()} on valmis.`);
+    setActiveType(null);
+    setJobPosting("");
   };
 
   const isPro = usage.tier === "pro";
@@ -204,6 +212,9 @@ function DashboardPage() {
               </Link>
             )}
           </div>
+          <div className="mt-4">
+            <PendingGenerations />
+          </div>
           {docsLoading ? (
             <div className="mt-4 h-24 animate-pulse rounded-xl border border-border bg-surface" />
           ) : docs.length === 0 ? (
@@ -251,7 +262,7 @@ function DashboardPage() {
       <Dialog
         open={activeType !== null}
         onOpenChange={(o) => {
-          if (!o && !generating) setActiveType(null);
+          if (!o) setActiveType(null);
         }}
       >
         <DialogContent>
@@ -261,7 +272,8 @@ function DashboardPage() {
             </DialogTitle>
             <DialogDescription>
               Liitä työpaikkailmoituksen teksti — tekoäly hyödyntää profiilisi tietoja
-              (työkokemus, koulutus, taidot) ja räätälöi sisällön ilmoitukseen.
+              (työkokemus, koulutus, taidot) ja räätälöi sisällön ilmoitukseen. Voit sulkea
+              ikkunan generoinnin aikana ja seurata edistymistä historiassa.
             </DialogDescription>
           </DialogHeader>
           <Textarea
@@ -269,26 +281,13 @@ function DashboardPage() {
             onChange={(e) => setJobPosting(e.target.value)}
             placeholder="Liitä tähän koko työpaikkailmoituksen teksti..."
             rows={10}
-            disabled={generating}
           />
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setActiveType(null)}
-              disabled={generating}
-            >
+            <Button variant="outline" onClick={() => setActiveType(null)}>
               Peruuta
             </Button>
-            <Button onClick={handleGenerate} disabled={generating}>
-              {generating ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generoidaan...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="mr-2 h-4 w-4" /> Luo tekoälyllä
-                </>
-              )}
+            <Button onClick={handleGenerate}>
+              <Sparkles className="mr-2 h-4 w-4" /> Luo tekoälyllä
             </Button>
           </DialogFooter>
         </DialogContent>

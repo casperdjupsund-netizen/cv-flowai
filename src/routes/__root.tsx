@@ -10,6 +10,7 @@ import {
 
 import appCss from "../styles.css?url";
 import { AuthProvider } from "@/lib/auth";
+import { GenerationTrackerProvider } from "@/lib/generation-tracker";
 import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
@@ -86,8 +87,10 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Outlet />
-        <Toaster />
+        <GenerationTrackerProvider>
+          <Outlet />
+          <Toaster />
+        </GenerationTrackerProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

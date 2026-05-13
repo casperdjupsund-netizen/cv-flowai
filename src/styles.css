@@ -110,3 +110,9 @@ html { scroll-behavior: smooth; }
                       radial-gradient(circle at 80% 0%, color-mix(in oklab, var(--primary) 5%, transparent) 0%, transparent 50%);
   }
 }
+
+@keyframes indeterminate {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
+
