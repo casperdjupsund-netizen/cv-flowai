@@ -91,9 +91,9 @@ function Stats() {
 
 function HowItWorks() {
   const steps = [
-    { icon: UserSquare2, title: "1. Täytä profiili kerran", desc: "Henkilötiedot, työkokemus, koulutus ja taidot tallennetaan turvallisesti." },
-    { icon: ClipboardList, title: "2. Liitä työilmoitus", desc: "Tekoäly analysoi tehtävän vaatimukset ja räätälöi sisällön." },
-    { icon: Pencil, title: "3. Muokkaa ja lataa", desc: "Hienosäädä visuaalisessa editorissa ja lataa PDF:nä." },
+    { icon: UserSquare2, iconName: "UserSquare2", title: "1. Täytä profiili kerran", desc: "Henkilötiedot, työkokemus, koulutus ja taidot tallennetaan turvallisesti." },
+    { icon: ClipboardList, iconName: "ClipboardList", title: "2. Liitä työilmoitus", desc: "Tekoäly analysoi tehtävän vaatimukset ja räätälöi sisällön." },
+    { icon: Pencil, iconName: "Pencil", title: "3. Muokkaa ja lataa", desc: "Hienosäädä visuaalisessa editorissa ja lataa PDF:nä." },
   ];
   return (
     <section id="how" className="py-24">
@@ -218,34 +218,28 @@ function FAQ() {
     },
     {
       q: "Mitä maksullinen versio sisältää?",
-      a: "Maksullinen versio maksaa 12,99 € / kk ja sisältää rajattoman määrän CV:itä, saatekirjeitä ja rekrytointisähköposteja.",
-    },
-    {
-      q: "Voinko peruuttaa milloin tahansa?",
-      a: "Kyllä. Maksullisen tilauksen voi perua koska tahansa, eikä sitoutumisaikoja ole.",
+      a: "Maksullinen versio maksaa 14,99 € / kk ja sisältää rajattoman määrän CV:itä, saatekirjeitä ja rekrytointisähköposteja.",
     },
   ];
+
   return (
-    <section id="faq" className="border-t border-border/60 bg-surface/30 py-24">
+    <section className="py-24">
       <div className="mx-auto max-w-3xl px-6">
         <div className="text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1 text-xs text-muted-foreground">
-            <HelpCircle className="h-3.5 w-3.5 text-primary" />
-            Usein kysyttyä
-          </div>
-          <h2 className="mt-4 font-display text-4xl font-bold tracking-tight">Vastauksia kysymyksiin</h2>
+          <h2 className="font-display text-4xl font-bold tracking-tight">Usein kysytyt kysymykset</h2>
+          <p className="mt-3 text-muted-foreground">Vastauksia yleisimpiin kysymyksiin.</p>
         </div>
-        <div className="mt-10 divide-y divide-border rounded-xl border border-border bg-surface">
-          {items.map((it) => (
-            <details key={it.q} className="group p-6">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4">
-                <span className="font-display text-base font-semibold">{it.q}</span>
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-border text-muted-foreground transition group-open:rotate-45">
-                  +
-                </span>
-              </summary>
-              <p className="mt-3 text-sm text-muted-foreground">{it.a}</p>
-            </details>
+        <div className="mt-12 space-y-8">
+          {items.map((item) => (
+            <div key={item.q} className="rounded-xl border border-border bg-surface p-6">
+              <div className="flex items-start gap-3">
+                <HelpCircle className="mt-1 h-5 w-5 shrink-0 text-primary" />
+                <div>
+                  <h3 className="font-display text-lg font-semibold">{item.q}</h3>
+                  <p className="mt-2 text-muted-foreground">{item.a}</p>
+                </div>
+              </div>
+            </div>
           ))}
         </div>
       </div>
@@ -255,12 +249,10 @@ function FAQ() {
 
 function CTA() {
   return (
-    <section className="py-24">
-      <div className="mx-auto max-w-3xl px-6 text-center">
-        <h2 className="font-display text-4xl font-bold tracking-tight sm:text-5xl text-balance">
-          Aloita ilmainen kokeilu
-        </h2>
-        <p className="mt-4 text-muted-foreground">Yksi CV, saatekirje ja rekrytointisähköposti veloituksetta. Sen jälkeen 12,99 € / kk rajattomasti.</p>
+    <section className="border-t border-border py-24">
+      <div className="mx-auto max-w-5xl px-6 text-center">
+        <h2 className="font-display text-4xl font-bold tracking-tight">Valmiina aloittamaan?</h2>
+        <p className="mt-4 text-muted-foreground">Yksi CV, saatekirje ja rekrytointisähköposti veloituksetta. Sen jälkeen 14,99 € / kk rajattomasti.</p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
           <Link
             to="/signup"
