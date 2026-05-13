@@ -10,7 +10,7 @@ export const Route = createFileRoute("/")({
   component: LandingPage,
   head: () => ({
     meta: [
-      { title: "CVFlow — Tee täydellinen CV sekunteissa" },
+      { title: "CVFlow — Tee täydellinen CV minuuteissa" },
       { name: "description", content: "Tekoälypohjainen suomalainen työnhaun työkalu. Täytä profiilisi kerran, liitä työilmoitus, lataa räätälöity CV PDF:nä." },
     ],
   }),
@@ -42,7 +42,7 @@ function Hero() {
         </div>
         <h1 className="mt-8 font-display text-5xl font-bold tracking-tight text-balance sm:text-7xl">
           Tee täydellinen CV<br />
-          <span className="text-primary">sekunteissa</span>
+          <span className="text-primary">minuuteissa</span>
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground text-balance">
           Täytä profiilisi kerran. Liitä työilmoitus. Tekoäly kirjoittaa — sinä viimeistelet ja lataat.
