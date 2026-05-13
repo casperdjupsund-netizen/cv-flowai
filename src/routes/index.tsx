@@ -27,6 +27,7 @@ function LandingPage() {
       <DocTypes />
       <SuccessStories />
       <Testimonials />
+      <ProPricing />
       <FAQ />
       <CTA />
       <SiteFooter />
