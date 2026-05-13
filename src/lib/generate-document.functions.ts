@@ -139,7 +139,7 @@ export const generateDocument = createServerFn({ method: "POST" })
         .insert({
           profile_id: userId,
           type: data.type,
-          content: output as Record<string, unknown>,
+          content: JSON.parse(JSON.stringify(output)),
           job_posting: data.job_posting,
         })
         .select("id")
