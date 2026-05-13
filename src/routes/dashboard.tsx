@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/lib/auth";
 import { SiteHeader } from "@/components/site-header";
+import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { FileText, Mail, Send, UserSquare2, ArrowRight, Lock, Sparkles, Download, Eye, Loader2 } from "lucide-react";
 import { useDocumentUsage, DOC_TYPE_LABELS, FREE_MONTHLY_LIMIT, type DocType } from "@/lib/usage";
 import { toast } from "sonner";
@@ -109,6 +110,7 @@ function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <PaymentTestModeBanner />
       <SiteHeader />
       <main className="mx-auto max-w-5xl px-6 py-16">
         <div className="rounded-xl border border-border bg-surface p-8">
