@@ -25,6 +25,7 @@ type ProfileForm = {
   linkedin: string;
   bio: string;
   skills: string;
+  ai_notes: string;
 };
 
 const EMPTY: ProfileForm = {
@@ -37,6 +38,7 @@ const EMPTY: ProfileForm = {
   linkedin: "",
   bio: "",
   skills: "",
+  ai_notes: "",
 };
 
 type ExperienceRow = {
