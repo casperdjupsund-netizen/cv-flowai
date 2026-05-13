@@ -25,7 +25,7 @@ import { documentToSections, downloadDocumentPdf, type DocumentRecord } from "@/
 
 export const Route = createFileRoute("/documents/$id")({
   component: DocumentPage,
-  head: () => ({ meta: [{ title: "Dokumentti — CVFlow" }] }),
+  head: () => ({ meta: [{ title: "Dokumentti — CVFLOW" }] }),
 });
 
 type Section = { heading: string; body: string };
