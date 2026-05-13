@@ -12,6 +12,13 @@ export function SiteHeader() {
           <span className="font-display text-lg font-bold tracking-tight">CVFLOW</span>
         </Link>
         <nav className="flex items-center gap-2">
+          <Link
+            to="/"
+            hash="pro"
+            className="hidden rounded-sm px-3 py-1.5 text-sm font-medium text-primary hover:text-primary/80 sm:inline-flex"
+          >
+            Näytä Pro
+          </Link>
           {user ? (
             <>
               <Link to="/dashboard" className="rounded-sm px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground">
