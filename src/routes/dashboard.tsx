@@ -1,17 +1,15 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import React from "react";
 import { useAuth } from "@/lib/auth";
 import { SiteHeader } from "@/components/site-header";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
-import { FileText, Mail, Send, UserSquare2, ArrowRight, Lock, Download, Eye, Loader2 } from "lucide-react";
+import { FileText, Mail, Send, UserSquare2, ArrowRight, Lock, Sparkles, Download, Eye, Loader2 } from "lucide-react";
 import { useDocumentUsage, DOC_TYPE_LABELS, FREE_MONTHLY_LIMIT, type DocType } from "@/lib/usage";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { downloadDocumentPdf, type DocumentRecord } from "@/lib/pdf";
 import { createDocumentManually } from "@/lib/create-document-manual.functions";
-import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/dashboard")({
   component: DashboardPage,
@@ -24,6 +22,8 @@ function DashboardPage() {
   const usage = useDocumentUsage();
   const [docs, setDocs] = useState<DocumentRecord[]>([]);
   const [docsLoading, setDocsLoading] = useState(true);
+  const [creating, setCreating] = useState<DocType | null>(null);
+  const createFn = useServerFn(createDocumentManually);
 
   useEffect(() => {
     if (!user) return;
@@ -49,17 +49,6 @@ function DashboardPage() {
     if (!loading && !user) navigate({ to: "/login" });
   }, [user, loading, navigate]);
 
-  if (loading || !user) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-      </div>
-    );
-  }
-
-  const [creating, setCreating] = useState<DocType | null>(null);
-  const createFn = useServerFn(createDocumentManually);
-
   const handleCreate = async (type: DocType) => {
     if (!usage.canCreate(type)) {
       toast.error("Kuukausiraja täynnä. Päivitä Pro-tiliin.");
@@ -82,6 +71,14 @@ function DashboardPage() {
       setCreating(null);
     }
   };
+
+  if (loading || !user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    );
+  }
 
   const isPro = usage.tier === "pro";
 
@@ -227,7 +224,6 @@ function DashboardPage() {
           )}
         </div>
       </main>
-
     </div>
   );
 }
@@ -254,7 +250,7 @@ function DocCard({
   return (
     <button
       onClick={() => onCreate(type)}
-      disabled={isCreating || (creating !== null)}
+      disabled={isCreating || creating !== null}
       className="group text-left rounded-xl border border-border bg-surface p-6 transition hover:border-primary/50 disabled:opacity-60"
     >
       <div className="flex items-start justify-between">
