@@ -25,10 +25,10 @@ function LandingPage() {
       <Hero />
       <Stats />
       <HowItWorks />
+      <ProPricing />
       <DocTypes />
       <SuccessStories />
       <Testimonials />
-      <ProPricing />
       <FAQ />
       <CTA />
       <SiteFooter />
