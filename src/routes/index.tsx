@@ -324,11 +324,54 @@ function ProPricing() {
               <Crown className="h-4 w-4 text-primary" />
               <p className="text-xs font-semibold uppercase tracking-wider text-primary">Pro</p>
             </div>
-            <div className="mt-4 flex items-baseline gap-1">
-              <span className="font-display text-5xl font-bold">14,99 €</span>
-              <span className="text-sm text-muted-foreground">/ kk</span>
+
+            <div className="mt-4 inline-flex rounded-full border border-border bg-background/60 p-1 text-xs">
+              <button
+                type="button"
+                onClick={() => setBilling("monthly")}
+                className={`rounded-full px-3 py-1 font-medium transition ${
+                  billing === "monthly" ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                }`}
+              >
+                Kuukausi
+              </button>
+              <button
+                type="button"
+                onClick={() => setBilling("yearly")}
+                className={`rounded-full px-3 py-1 font-medium transition ${
+                  billing === "yearly" ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                }`}
+              >
+                Vuosi <span className="ml-1 opacity-90">−{yearlySavingsPct}%</span>
+              </button>
             </div>
-            <p className="mt-2 text-sm text-muted-foreground">Peruuta milloin tahansa. Vähemmän kuin yksi lounas.</p>
+
+            {billing === "monthly" ? (
+              <>
+                <div className="mt-4 flex items-baseline gap-1">
+                  <span className="font-display text-5xl font-bold">14,99 €</span>
+                  <span className="text-sm text-muted-foreground">/ kk</span>
+                </div>
+                <p className="mt-2 text-sm text-muted-foreground">Peruuta milloin tahansa. Vähemmän kuin yksi lounas.</p>
+              </>
+            ) : (
+              <>
+                <div className="mt-4 flex items-baseline gap-2">
+                  <span className="font-display text-5xl font-bold">{yearlyPerMonth.toFixed(2).replace(".", ",")} €</span>
+                  <span className="text-sm text-muted-foreground">/ kk</span>
+                  <span className="ml-1 rounded-full bg-primary/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+                    Säästä {yearlySavingsPct}%
+                  </span>
+                </div>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Laskutetaan {yearlyTotal} € / vuosi.{" "}
+                  <span className="text-foreground/80">
+                    Säästät {(monthlyPrice * 12 - yearlyTotal).toFixed(2).replace(".", ",")} € verrattuna kuukausimaksuun.
+                  </span>
+                </p>
+              </>
+            )}
+
             <ul className="mt-6 space-y-3 text-sm">
               <li className="flex gap-2"><Check className="h-5 w-5 shrink-0 text-primary" /> <span><span className="font-semibold">Rajaton</span> määrä dokumentteja</span></li>
               <li className="flex gap-2"><Check className="h-5 w-5 shrink-0 text-primary" /> Kaikki premium-CV-pohjat</li>
@@ -340,7 +383,7 @@ function ProPricing() {
               to="/upgrade"
               className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-sm bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition hover:shadow-glow"
             >
-              Päivitä Pro-versioon
+              {billing === "yearly" ? "Hanki vuositilaus" : "Päivitä Pro-versioon"}
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
