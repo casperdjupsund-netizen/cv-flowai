@@ -40,7 +40,10 @@ function contentToSections(doc: DocumentRecord): Section[] {
   }));
 }
 
-function sectionsToContent(doc: DocumentRecord, sections: Section[]): unknown {
+function sectionsToContent(
+  doc: DocumentRecord,
+  sections: Section[],
+): Record<string, unknown> {
   if (doc.type === "cv") {
     return {
       sections: sections.map((s) => ({
@@ -49,7 +52,6 @@ function sectionsToContent(doc: DocumentRecord, sections: Section[]): unknown {
       })),
     };
   }
-  // cover_letter / email: subject + body
   const subject =
     sections.find((s) => s.heading.trim().toLowerCase() === "aihe")?.body ?? "";
   const body = sections
