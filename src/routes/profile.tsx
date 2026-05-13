@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Check, Loader2, ArrowLeft } from "lucide-react";
+import { Check, Loader2, ArrowLeft, Plus, Trash2, Briefcase, GraduationCap } from "lucide-react";
 
 export const Route = createFileRoute("/profile")({
   component: ProfilePage,
@@ -39,12 +39,31 @@ const EMPTY: ProfileForm = {
   skills: "",
 };
 
+type ExperienceRow = {
+  id: string;
+  title: string;
+  company: string;
+  start_date: string;
+  end_date: string;
+  description: string;
+};
+
+type EducationRow = {
+  id: string;
+  school: string;
+  degree: string;
+  major: string;
+  year: string;
+};
+
 type SaveStatus = "idle" | "saving" | "saved" | "error";
 
 function ProfilePage() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState<ProfileForm>(EMPTY);
+  const [experience, setExperience] = useState<ExperienceRow[]>([]);
+  const [education, setEducation] = useState<EducationRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState<SaveStatus>("idle");
   const dirtyRef = useRef(false);
@@ -54,34 +73,65 @@ function ProfilePage() {
     if (!authLoading && !user) navigate({ to: "/login" });
   }, [user, authLoading, navigate]);
 
-  // Load profile
+  // Load profile + experience + education
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
     (async () => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("first_name,last_name,job_title,email,phone,location,linkedin,bio,skills")
-        .eq("id", user.id)
-        .maybeSingle();
+      const [{ data: profile, error }, { data: exps }, { data: edus }] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select("first_name,last_name,job_title,email,phone,location,linkedin,bio,skills")
+          .eq("id", user.id)
+          .maybeSingle(),
+        supabase
+          .from("experience")
+          .select("id,title,company,start_date,end_date,description")
+          .eq("profile_id", user.id)
+          .order("order_index", { ascending: true }),
+        supabase
+          .from("education")
+          .select("id,school,degree,major,year")
+          .eq("profile_id", user.id)
+          .order("order_index", { ascending: true }),
+      ]);
       if (cancelled) return;
       if (error) {
         toast.error("Profiilin lataus epäonnistui");
-      } else if (data) {
+      } else if (profile) {
         setForm({
-          first_name: data.first_name ?? "",
-          last_name: data.last_name ?? "",
-          job_title: data.job_title ?? "",
-          email: data.email ?? user.email ?? "",
-          phone: data.phone ?? "",
-          location: data.location ?? "",
-          linkedin: data.linkedin ?? "",
-          bio: data.bio ?? "",
-          skills: data.skills ?? "",
+          first_name: profile.first_name ?? "",
+          last_name: profile.last_name ?? "",
+          job_title: profile.job_title ?? "",
+          email: profile.email ?? user.email ?? "",
+          phone: profile.phone ?? "",
+          location: profile.location ?? "",
+          linkedin: profile.linkedin ?? "",
+          bio: profile.bio ?? "",
+          skills: profile.skills ?? "",
         });
       } else {
         setForm((f) => ({ ...f, email: user.email ?? "" }));
       }
+      setExperience(
+        (exps ?? []).map((e) => ({
+          id: e.id,
+          title: e.title ?? "",
+          company: e.company ?? "",
+          start_date: e.start_date ?? "",
+          end_date: e.end_date ?? "",
+          description: e.description ?? "",
+        })),
+      );
+      setEducation(
+        (edus ?? []).map((e) => ({
+          id: e.id,
+          school: e.school ?? "",
+          degree: e.degree ?? "",
+          major: e.major ?? "",
+          year: e.year ?? "",
+        })),
+      );
       setLoading(false);
     })();
     return () => {
@@ -89,13 +139,16 @@ function ProfilePage() {
     };
   }, [user]);
 
-  const save = useCallback(
+  const saveProfile = useCallback(
     async (data: ProfileForm) => {
       if (!user) return;
       setStatus("saving");
       const { error } = await supabase
         .from("profiles")
-        .upsert({ id: user.id, ...data, updated_at: new Date().toISOString() }, { onConflict: "id" });
+        .upsert(
+          { id: user.id, ...data, updated_at: new Date().toISOString() },
+          { onConflict: "id" },
+        );
       if (error) {
         setStatus("error");
         toast.error("Tallennus epäonnistui: " + error.message);
@@ -113,14 +166,102 @@ function ProfilePage() {
       const next = { ...prev, [key]: value };
       dirtyRef.current = true;
       if (timerRef.current) clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(() => save(next), 1200);
+      timerRef.current = setTimeout(() => saveProfile(next), 1200);
       return next;
     });
   };
 
+  // ----- Experience -----
+  const addExperience = async () => {
+    if (!user) return;
+    const order_index = experience.length;
+    const { data, error } = await supabase
+      .from("experience")
+      .insert({ profile_id: user.id, order_index })
+      .select("id")
+      .single();
+    if (error || !data) {
+      toast.error("Lisäys epäonnistui");
+      return;
+    }
+    setExperience((prev) => [
+      ...prev,
+      { id: data.id, title: "", company: "", start_date: "", end_date: "", description: "" },
+    ]);
+  };
+
+  const updateExperience = (id: string, patch: Partial<ExperienceRow>) => {
+    setExperience((prev) => prev.map((e) => (e.id === id ? { ...e, ...patch } : e)));
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(async () => {
+      setStatus("saving");
+      const { error } = await supabase.from("experience").update(patch).eq("id", id);
+      if (error) {
+        setStatus("error");
+        toast.error("Tallennus epäonnistui");
+      } else {
+        setStatus("saved");
+        setTimeout(() => setStatus((s) => (s === "saved" ? "idle" : s)), 1500);
+      }
+    }, 800);
+  };
+
+  const removeExperience = async (id: string) => {
+    const { error } = await supabase.from("experience").delete().eq("id", id);
+    if (error) {
+      toast.error("Poisto epäonnistui");
+      return;
+    }
+    setExperience((prev) => prev.filter((e) => e.id !== id));
+  };
+
+  // ----- Education -----
+  const addEducation = async () => {
+    if (!user) return;
+    const order_index = education.length;
+    const { data, error } = await supabase
+      .from("education")
+      .insert({ profile_id: user.id, order_index })
+      .select("id")
+      .single();
+    if (error || !data) {
+      toast.error("Lisäys epäonnistui");
+      return;
+    }
+    setEducation((prev) => [
+      ...prev,
+      { id: data.id, school: "", degree: "", major: "", year: "" },
+    ]);
+  };
+
+  const updateEducation = (id: string, patch: Partial<EducationRow>) => {
+    setEducation((prev) => prev.map((e) => (e.id === id ? { ...e, ...patch } : e)));
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(async () => {
+      setStatus("saving");
+      const { error } = await supabase.from("education").update(patch).eq("id", id);
+      if (error) {
+        setStatus("error");
+        toast.error("Tallennus epäonnistui");
+      } else {
+        setStatus("saved");
+        setTimeout(() => setStatus((s) => (s === "saved" ? "idle" : s)), 1500);
+      }
+    }, 800);
+  };
+
+  const removeEducation = async (id: string) => {
+    const { error } = await supabase.from("education").delete().eq("id", id);
+    if (error) {
+      toast.error("Poisto epäonnistui");
+      return;
+    }
+    setEducation((prev) => prev.filter((e) => e.id !== id));
+  };
+
   const handleManualSave = async () => {
     if (timerRef.current) clearTimeout(timerRef.current);
-    await save(form);
+    await saveProfile(form);
     if (status !== "error") toast.success("Profiili tallennettu");
   };
 
@@ -159,7 +300,9 @@ function ProfilePage() {
           <SaveIndicator status={status} />
         </div>
 
+        {/* Perustiedot */}
         <div className="mt-8 space-y-6 rounded-xl border border-border bg-surface p-6">
+          <h2 className="font-display text-lg font-semibold">Perustiedot</h2>
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="Etunimi" value={form.first_name} onChange={(v) => update("first_name", v)} />
             <Field label="Sukunimi" value={form.last_name} onChange={(v) => update("last_name", v)} />
@@ -180,11 +323,97 @@ function ProfilePage() {
             placeholder="Lyhyt kuvaus itsestäsi ja osaamisestasi"
             rows={4}
           />
+        </div>
+
+        {/* Työkokemus */}
+        <div className="mt-6 space-y-4 rounded-xl border border-border bg-surface p-6">
+          <div className="flex items-center justify-between">
+            <h2 className="flex items-center gap-2 font-display text-lg font-semibold">
+              <Briefcase className="h-4 w-4 text-primary" /> Työkokemus
+            </h2>
+            <Button variant="outline" size="sm" onClick={addExperience}>
+              <Plus className="mr-1 h-3.5 w-3.5" /> Lisää
+            </Button>
+          </div>
+          {experience.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Ei vielä lisättyä työkokemusta.</p>
+          ) : (
+            experience.map((e) => (
+              <div key={e.id} className="space-y-3 rounded-lg border border-border/60 bg-background/50 p-4">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="grid flex-1 gap-3 md:grid-cols-2">
+                    <Field label="Tehtävä" value={e.title} onChange={(v) => updateExperience(e.id, { title: v })} />
+                    <Field label="Yritys" value={e.company} onChange={(v) => updateExperience(e.id, { company: v })} />
+                  </div>
+                  <button
+                    onClick={() => removeExperience(e.id)}
+                    className="mt-7 rounded-md p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                    aria-label="Poista"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+                <div className="grid gap-3 md:grid-cols-2">
+                  <Field label="Alkoi" value={e.start_date} onChange={(v) => updateExperience(e.id, { start_date: v })} placeholder="2022" />
+                  <Field label="Päättyi" value={e.end_date} onChange={(v) => updateExperience(e.id, { end_date: v })} placeholder="Nykyinen" />
+                </div>
+                <TextField
+                  label="Kuvaus"
+                  value={e.description}
+                  onChange={(v) => updateExperience(e.id, { description: v })}
+                  placeholder="Tehtävät ja saavutukset"
+                  rows={3}
+                />
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Koulutus */}
+        <div className="mt-6 space-y-4 rounded-xl border border-border bg-surface p-6">
+          <div className="flex items-center justify-between">
+            <h2 className="flex items-center gap-2 font-display text-lg font-semibold">
+              <GraduationCap className="h-4 w-4 text-primary" /> Koulutus
+            </h2>
+            <Button variant="outline" size="sm" onClick={addEducation}>
+              <Plus className="mr-1 h-3.5 w-3.5" /> Lisää
+            </Button>
+          </div>
+          {education.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Ei vielä lisättyä koulutusta.</p>
+          ) : (
+            education.map((e) => (
+              <div key={e.id} className="space-y-3 rounded-lg border border-border/60 bg-background/50 p-4">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="grid flex-1 gap-3 md:grid-cols-2">
+                    <Field label="Oppilaitos" value={e.school} onChange={(v) => updateEducation(e.id, { school: v })} />
+                    <Field label="Tutkinto" value={e.degree} onChange={(v) => updateEducation(e.id, { degree: v })} />
+                  </div>
+                  <button
+                    onClick={() => removeEducation(e.id)}
+                    className="mt-7 rounded-md p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                    aria-label="Poista"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+                <div className="grid gap-3 md:grid-cols-2">
+                  <Field label="Pääaine" value={e.major} onChange={(v) => updateEducation(e.id, { major: v })} placeholder="esim. Tietotekniikka" />
+                  <Field label="Vuosi" value={e.year} onChange={(v) => updateEducation(e.id, { year: v })} placeholder="2024" />
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Taidot */}
+        <div className="mt-6 space-y-4 rounded-xl border border-border bg-surface p-6">
+          <h2 className="font-display text-lg font-semibold">Taidot</h2>
           <TextField
-            label="Taidot"
+            label="Listaa taitosi pilkulla erotettuna"
             value={form.skills}
             onChange={(v) => update("skills", v)}
-            placeholder="React, TypeScript, Tiimityö..."
+            placeholder="React, TypeScript, Tiimityö, Asiakaspalvelu..."
             rows={3}
           />
         </div>
