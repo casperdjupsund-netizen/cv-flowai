@@ -260,7 +260,7 @@ function CTA() {
         <h2 className="font-display text-4xl font-bold tracking-tight sm:text-5xl text-balance">
           Aloita ilmainen kokeilu
         </h2>
-        <p className="mt-4 text-muted-foreground">3 dokumenttia kuukaudessa veloituksetta.</p>
+        <p className="mt-4 text-muted-foreground">Yksi CV, saatekirje ja rekrytointisähköposti veloituksetta. Sen jälkeen 12,99 € / kk rajattomasti.</p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
           <Link
             to="/signup"
