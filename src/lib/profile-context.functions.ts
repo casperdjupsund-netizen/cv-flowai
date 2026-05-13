@@ -77,10 +77,6 @@ function summarizeContent(content: unknown, maxLen = 600): string {
  */
 /** Sisäinen lataaja, jota voi kutsua toisista server-funktioista. */
 export async function loadProfileContext(
-  supabase: Parameters<Parameters<typeof createServerFn>[0] extends never ? never : never>[0] extends never ? never : never,
-  userId: string,
-): Promise<ProfileContext>;
-export async function loadProfileContext(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   supabase: any,
   userId: string,
