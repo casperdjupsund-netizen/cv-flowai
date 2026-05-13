@@ -41,7 +41,7 @@ export function SiteHeader() {
                 proActive ? "bg-primary shadow-[0_0_8px_var(--color-primary)]" : "bg-primary/40"
               }`}
             />
-            Näytä Pro
+            CVFLOW PRO
           </Link>
           {user ? (
             <>
