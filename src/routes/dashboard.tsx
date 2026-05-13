@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/lib/auth";
 import { SiteHeader } from "@/components/site-header";
@@ -9,7 +9,17 @@ import { useDocumentUsage, DOC_TYPE_LABELS, FREE_MONTHLY_LIMIT, type DocType } f
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { downloadDocumentPdf, type DocumentRecord } from "@/lib/pdf";
-import { createDocumentManually } from "@/lib/create-document-manual.functions";
+import { generateDocument } from "@/lib/generate-document.functions";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/dashboard")({
   component: DashboardPage,
@@ -22,8 +32,6 @@ function DashboardPage() {
   const usage = useDocumentUsage();
   const [docs, setDocs] = useState<DocumentRecord[]>([]);
   const [docsLoading, setDocsLoading] = useState(true);
-  const [creating, setCreating] = useState<DocType | null>(null);
-  const createFn = useServerFn(createDocumentManually);
 
   useEffect(() => {
     if (!user) return;
@@ -49,29 +57,6 @@ function DashboardPage() {
     if (!loading && !user) navigate({ to: "/login" });
   }, [user, loading, navigate]);
 
-  const handleCreate = async (type: DocType) => {
-    if (!usage.canCreate(type)) {
-      toast.error("Kuukausiraja täynnä. Päivitä Pro-tiliin.");
-      navigate({ to: "/upgrade" });
-      return;
-    }
-    setCreating(type);
-    try {
-      const res = await createFn({ data: { type } });
-      if (!res.ok) {
-        toast.error(res.error);
-        if ("upgrade" in res && res.upgrade) navigate({ to: "/upgrade" });
-        return;
-      }
-      await usage.refresh();
-      navigate({ to: "/documents/$id", params: { id: res.id } });
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Luonti epäonnistui");
-    } finally {
-      setCreating(null);
-    }
-  };
-
   if (loading || !user) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
@@ -79,6 +64,47 @@ function DashboardPage() {
       </div>
     );
   }
+
+  const [activeType, setActiveType] = useState<DocType | null>(null);
+  const [jobPosting, setJobPosting] = useState("");
+  const [generating, setGenerating] = useState(false);
+  const generateFn = useServerFn(generateDocument);
+
+  const handleCreate = (type: DocType) => {
+    if (!usage.canCreate(type)) {
+      toast.error(`Olet käyttänyt ilmaisen ${DOC_TYPE_LABELS[type].toLowerCase()}-versiosi`);
+      navigate({ to: "/upgrade" });
+      return;
+    }
+    setActiveType(type);
+    setJobPosting("");
+  };
+
+  const handleGenerate = async () => {
+    if (!activeType || jobPosting.trim().length < 10) {
+      toast.error("Liitä ensin työpaikkailmoituksen teksti.");
+      return;
+    }
+    setGenerating(true);
+    try {
+      const res = await generateFn({
+        data: { type: activeType, job_posting: jobPosting.trim() },
+      });
+      if (!res.ok) {
+        toast.error(res.error);
+        if ("upgrade" in res && res.upgrade) navigate({ to: "/upgrade" });
+        return;
+      }
+      toast.success("Dokumentti luotu!");
+      setActiveType(null);
+      await usage.refresh();
+      navigate({ to: "/documents/$id", params: { id: res.id } });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Generointi epäonnistui");
+    } finally {
+      setGenerating(false);
+    }
+  };
 
   const isPro = usage.tier === "pro";
 
@@ -131,7 +157,6 @@ function DashboardPage() {
               count={usage.counts.cv}
               isPro={isPro}
               monthlyTotal={usage.monthlyTotal}
-              creating={creating}
               onCreate={handleCreate}
             />
             <DocCard
@@ -140,7 +165,6 @@ function DashboardPage() {
               count={usage.counts.cover_letter}
               isPro={isPro}
               monthlyTotal={usage.monthlyTotal}
-              creating={creating}
               onCreate={handleCreate}
             />
             <DocCard
@@ -149,7 +173,6 @@ function DashboardPage() {
               count={usage.counts.email}
               isPro={isPro}
               monthlyTotal={usage.monthlyTotal}
-              creating={creating}
               onCreate={handleCreate}
             />
           </div>
@@ -224,6 +247,52 @@ function DashboardPage() {
           )}
         </div>
       </main>
+
+      <Dialog
+        open={activeType !== null}
+        onOpenChange={(o) => {
+          if (!o && !generating) setActiveType(null);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              Luo {activeType ? DOC_TYPE_LABELS[activeType].toLowerCase() : "dokumentti"}
+            </DialogTitle>
+            <DialogDescription>
+              Liitä työpaikkailmoituksen teksti — tekoäly hyödyntää profiilisi tietoja
+              (työkokemus, koulutus, taidot) ja räätälöi sisällön ilmoitukseen.
+            </DialogDescription>
+          </DialogHeader>
+          <Textarea
+            value={jobPosting}
+            onChange={(e) => setJobPosting(e.target.value)}
+            placeholder="Liitä tähän koko työpaikkailmoituksen teksti..."
+            rows={10}
+            disabled={generating}
+          />
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setActiveType(null)}
+              disabled={generating}
+            >
+              Peruuta
+            </Button>
+            <Button onClick={handleGenerate} disabled={generating}>
+              {generating ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generoidaan...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="mr-2 h-4 w-4" /> Luo tekoälyllä
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -234,7 +303,6 @@ function DocCard({
   count,
   isPro,
   monthlyTotal,
-  creating,
   onCreate,
 }: {
   icon: React.ComponentType<{ className?: string }>;
@@ -242,20 +310,17 @@ function DocCard({
   count: number;
   isPro: boolean;
   monthlyTotal: number;
-  creating: DocType | null;
   onCreate: (t: DocType) => void;
 }) {
   const used = !isPro && monthlyTotal >= FREE_MONTHLY_LIMIT;
-  const isCreating = creating === type;
   return (
     <button
       onClick={() => onCreate(type)}
-      disabled={isCreating || creating !== null}
-      className="group text-left rounded-xl border border-border bg-surface p-6 transition hover:border-primary/50 disabled:opacity-60"
+      className="group text-left rounded-xl border border-border bg-surface p-6 transition hover:border-primary/50 disabled:opacity-100"
     >
       <div className="flex items-start justify-between">
         <Icon className="h-6 w-6 text-primary" />
-        {used && !isCreating && (
+        {used && (
           <span className="inline-flex items-center gap-1 rounded-full bg-muted/40 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
             <Lock className="h-3 w-3" /> Kuukausiraja täynnä
           </span>
@@ -266,13 +331,7 @@ function DocCard({
         {isPro ? `${count} luotu — rajaton käyttö` : `${count} luotu tässä kuussa`}
       </p>
       <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary">
-        {isCreating ? (
-          <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Luodaan...</>
-        ) : used ? (
-          <>Päivitä Pro <ArrowRight className="h-3.5 w-3.5" /></>
-        ) : (
-          <>Luo uusi <ArrowRight className="h-3.5 w-3.5" /></>
-        )}
+        {used ? "Päivitä Pro" : "Luo uusi"} <ArrowRight className="h-3.5 w-3.5" />
       </span>
     </button>
   );
