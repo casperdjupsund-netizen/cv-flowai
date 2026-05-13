@@ -12,14 +12,22 @@ export const DOC_TYPE_LABELS: Record<DocType, string> = {
   email: "Rekrytointisähköposti",
 };
 
-export const FREE_LIMIT_PER_TYPE = 1;
+// Free-tason raja: 3 dokumenttia/kk yhteensä (kaikki tyypit yhdessä)
+export const FREE_LIMIT_PER_TYPE = 3;
+export const FREE_MONTHLY_LIMIT = 3;
 
 export interface UsageState {
   loading: boolean;
   tier: "free" | "pro";
   counts: Record<DocType, number>;
+  monthlyTotal: number;
   canCreate: (type: DocType) => boolean;
   refresh: () => Promise<void>;
+}
+
+function startOfMonthISO(): string {
+  const now = new Date();
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
 }
 
 export function useDocumentUsage(): UsageState {
@@ -31,24 +39,35 @@ export function useDocumentUsage(): UsageState {
     cover_letter: 0,
     email: 0,
   });
+  const [monthlyTotal, setMonthlyTotal] = useState(0);
 
   const refresh = useCallback(async () => {
     if (!user) return;
     setLoading(true);
 
+    const monthStart = startOfMonthISO();
     const [{ data: profile }, { data: docs }] = await Promise.all([
       supabase.from("profiles").select("subscription_tier").eq("id", user.id).maybeSingle(),
-      supabase.from("documents").select("type").eq("profile_id", user.id),
+      supabase
+        .from("documents")
+        .select("type, created_at")
+        .eq("profile_id", user.id)
+        .gte("created_at", monthStart),
     ]);
 
     const t = (profile?.subscription_tier as "free" | "pro" | undefined) ?? "free";
     setTier(t);
 
     const next: Record<DocType, number> = { cv: 0, cover_letter: 0, email: 0 };
+    let total = 0;
     for (const d of docs ?? []) {
-      if (d.type && d.type in next) next[d.type as DocType] += 1;
+      if (d.type && d.type in next) {
+        next[d.type as DocType] += 1;
+        total += 1;
+      }
     }
     setCounts(next);
+    setMonthlyTotal(total);
     setLoading(false);
   }, [user]);
 
@@ -57,12 +76,12 @@ export function useDocumentUsage(): UsageState {
   }, [user, refresh]);
 
   const canCreate = useCallback(
-    (type: DocType) => {
+    (_type: DocType) => {
       if (tier === "pro") return true;
-      return (counts[type] ?? 0) < FREE_LIMIT_PER_TYPE;
+      return monthlyTotal < FREE_MONTHLY_LIMIT;
     },
-    [tier, counts],
+    [tier, monthlyTotal],
   );
 
-  return { loading, tier, counts, canCreate, refresh };
+  return { loading, tier, counts, monthlyTotal, canCreate, refresh };
 }
