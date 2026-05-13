@@ -108,7 +108,7 @@ function UpgradePage() {
             <div className="mt-8 rounded-2xl border border-primary/40 bg-surface p-8 shadow-glow">
               <div className="flex items-baseline gap-2">
                 <span className="font-display text-5xl font-bold">
-                  {interval === "monthly" ? "14 €" : "99 €"}
+                  {interval === "monthly" ? "14,99 €" : "99 €"}
                 </span>
                 <span className="text-muted-foreground">
                   / {interval === "monthly" ? "kk" : "v"}
