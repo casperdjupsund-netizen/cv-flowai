@@ -251,6 +251,11 @@ function FAQ() {
 }
 
 function ProPricing() {
+  const [billing, setBilling] = useState<"monthly" | "yearly">("yearly");
+  const monthlyPrice = 14.99;
+  const yearlyTotal = 99;
+  const yearlyPerMonth = yearlyTotal / 12; // ~8.25
+  const yearlySavingsPct = Math.round((1 - yearlyTotal / (monthlyPrice * 12)) * 100); // ~45%
   const proFeatures = [
     { icon: InfinityIcon, title: "Rajaton määrä dokumentteja", desc: "Hae niin moneen paikkaan kuin haluat — ei kuukausirajaa." },
     { icon: Zap, title: "Parhaat AI-mallit", desc: "Käytössäsi tarkimmat ja luovimmat tekoälymallit räätälöintiin." },
