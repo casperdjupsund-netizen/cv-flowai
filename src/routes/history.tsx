@@ -7,6 +7,7 @@ import { downloadDocumentPdf, type DocumentRecord } from "@/lib/pdf";
 import { DOC_TYPE_LABELS, type DocType } from "@/lib/usage";
 import { ArrowLeft, Download, Eye, FileText, Mail, Send, Search } from "lucide-react";
 import { PendingGenerations } from "@/components/PendingGenerations";
+import { useOnGenerationDone } from "@/lib/generation-tracker";
 
 export const Route = createFileRoute("/history")({
   component: HistoryPage,
@@ -52,6 +53,18 @@ function HistoryPage() {
       cancelled = true;
     };
   }, [user]);
+
+  // Refresh list when a tracked generation finishes (covers cases where the
+  // doc was started elsewhere or while user is viewing /history).
+  useOnGenerationDone(async (job) => {
+    if (job.status !== "done" || !user) return;
+    const { data } = await supabase
+      .from("documents")
+      .select("id, type, created_at, job_posting, content")
+      .eq("profile_id", user.id)
+      .order("created_at", { ascending: false });
+    setDocs((data ?? []) as DocumentRecord[]);
+  });
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
