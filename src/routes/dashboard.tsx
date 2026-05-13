@@ -1,10 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { SiteHeader } from "@/components/site-header";
-import { FileText, Mail, Send, UserSquare2, ArrowRight, Lock, Sparkles } from "lucide-react";
+import { FileText, Mail, Send, UserSquare2, ArrowRight, Lock, Sparkles, Download, Eye } from "lucide-react";
 import { useDocumentUsage, DOC_TYPE_LABELS, FREE_LIMIT_PER_TYPE, type DocType } from "@/lib/usage";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { downloadDocumentPdf, type DocumentRecord } from "@/lib/pdf";
 
 export const Route = createFileRoute("/dashboard")({
   component: DashboardPage,
