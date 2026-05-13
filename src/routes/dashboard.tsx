@@ -130,7 +130,7 @@ function DashboardPage() {
             <p className="mt-4 text-sm text-muted-foreground">
               Ilmaisella tilillä voit luoda {FREE_MONTHLY_LIMIT} dokumenttia kuukaudessa
               ({usage.monthlyTotal} / {FREE_MONTHLY_LIMIT} käytetty).
-              Pro: 14 €/kk tai 99 €/v — rajaton käyttö.
+              Pro: 14,99 €/kk tai 99 €/v — rajaton käyttö.
             </p>
           )}
         </div>
