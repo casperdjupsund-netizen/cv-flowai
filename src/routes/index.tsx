@@ -3,7 +3,8 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import {
   Sparkles, FileText, Mail, Send, ArrowRight, Star, Check,
-  UserSquare2, ClipboardList, Pencil, HelpCircle
+  UserSquare2, ClipboardList, Pencil, HelpCircle,
+  Crown, Infinity as InfinityIcon, Zap, Palette, Download, ShieldCheck, X
 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -26,6 +27,7 @@ function LandingPage() {
       <DocTypes />
       <SuccessStories />
       <Testimonials />
+      <ProPricing />
       <FAQ />
       <CTA />
       <SiteFooter />
@@ -242,6 +244,134 @@ function FAQ() {
             </div>
           ))}
         </div>
+      </div>
+    </section>
+  );
+}
+
+function ProPricing() {
+  const proFeatures = [
+    { icon: InfinityIcon, title: "Rajaton määrä dokumentteja", desc: "Hae niin moneen paikkaan kuin haluat — ei kuukausirajaa." },
+    { icon: Zap, title: "Parhaat AI-mallit", desc: "Käytössäsi tarkimmat ja luovimmat tekoälymallit räätälöintiin." },
+    { icon: Palette, title: "Premium-CV-pohjat", desc: "Pääset käsiksi kaikkiin tyylikkäisiin CV-tyyleihin ja väriteemoihin." },
+    { icon: Download, title: "Korkealaatuinen PDF", desc: "Lataa ammattimaiset PDF:t ilman vesileimaa." },
+    { icon: ShieldCheck, title: "Prioriteettituki", desc: "Saat vastauksen tukipyyntöihin alle 24 tunnissa." },
+    { icon: Sparkles, title: "Uudet ominaisuudet ensin", desc: "Pääset kokeilemaan uusia työkaluja ennen muita." },
+  ];
+  const compare = [
+    { feature: "Ilmaiset kokeilukerrat", free: "1 / dokumenttityyppi", pro: "Rajaton" },
+    { feature: "AI-räätälöinti työilmoituksen mukaan", free: true, pro: true },
+    { feature: "Premium-CV-pohjat", free: false, pro: true },
+    { feature: "PDF ilman vesileimaa", free: false, pro: true },
+    { feature: "Prioriteettituki", free: false, pro: true },
+  ];
+  return (
+    <section className="relative overflow-hidden border-t border-border/60 py-24">
+      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-primary/10 via-background to-background" />
+      <div className="mx-auto max-w-5xl px-6">
+        <div className="text-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-semibold text-primary">
+            <Crown className="h-3.5 w-3.5" />
+            CVFLOW PRO
+          </div>
+          <h2 className="mt-6 font-display text-4xl font-bold tracking-tight sm:text-5xl">
+            Saa työ, jota oikeasti haluat
+          </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
+            Pro-käyttäjät saavat <span className="font-semibold text-foreground">3× enemmän haastattelukutsuja</span> — koska he voivat räätälöidä jokaisen hakemuksen kohdilleen ilman rajaa.
+          </p>
+        </div>
+
+        <div className="mt-12 grid gap-6 md:grid-cols-3">
+          {proFeatures.map((f) => (
+            <div key={f.title} className="rounded-xl border border-border bg-surface p-6 transition hover:border-primary/50">
+              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/15 text-primary">
+                <f.icon className="h-5 w-5" />
+              </div>
+              <h3 className="mt-4 font-display text-lg font-semibold">{f.title}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">{f.desc}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-16 grid gap-6 md:grid-cols-2">
+          <div className="rounded-2xl border border-border bg-surface/50 p-8">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Ilmainen</p>
+            <div className="mt-4 flex items-baseline gap-1">
+              <span className="font-display text-5xl font-bold">0 €</span>
+              <span className="text-sm text-muted-foreground">/ ikuisesti</span>
+            </div>
+            <p className="mt-2 text-sm text-muted-foreground">Kokeile ilman luottokorttia.</p>
+            <ul className="mt-6 space-y-3 text-sm">
+              <li className="flex gap-2"><Check className="h-5 w-5 shrink-0 text-primary" /> 1 CV, 1 saatekirje, 1 sähköposti</li>
+              <li className="flex gap-2"><Check className="h-5 w-5 shrink-0 text-primary" /> AI-räätälöinti</li>
+              <li className="flex gap-2 text-muted-foreground"><X className="h-5 w-5 shrink-0" /> Ei premium-pohjia</li>
+              <li className="flex gap-2 text-muted-foreground"><X className="h-5 w-5 shrink-0" /> PDF sisältää vesileiman</li>
+            </ul>
+          </div>
+
+          <div className="relative rounded-2xl border-2 border-primary bg-gradient-to-br from-primary/15 via-surface to-surface p-8 shadow-glow">
+            <span className="absolute -top-3 right-6 rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-primary-foreground">
+              Suosituin
+            </span>
+            <div className="flex items-center gap-2">
+              <Crown className="h-4 w-4 text-primary" />
+              <p className="text-xs font-semibold uppercase tracking-wider text-primary">Pro</p>
+            </div>
+            <div className="mt-4 flex items-baseline gap-1">
+              <span className="font-display text-5xl font-bold">14,99 €</span>
+              <span className="text-sm text-muted-foreground">/ kk</span>
+            </div>
+            <p className="mt-2 text-sm text-muted-foreground">Peruuta milloin tahansa. Vähemmän kuin yksi lounas.</p>
+            <ul className="mt-6 space-y-3 text-sm">
+              <li className="flex gap-2"><Check className="h-5 w-5 shrink-0 text-primary" /> <span><span className="font-semibold">Rajaton</span> määrä dokumentteja</span></li>
+              <li className="flex gap-2"><Check className="h-5 w-5 shrink-0 text-primary" /> Kaikki premium-CV-pohjat</li>
+              <li className="flex gap-2"><Check className="h-5 w-5 shrink-0 text-primary" /> PDF ilman vesileimaa</li>
+              <li className="flex gap-2"><Check className="h-5 w-5 shrink-0 text-primary" /> Parhaat AI-mallit</li>
+              <li className="flex gap-2"><Check className="h-5 w-5 shrink-0 text-primary" /> Prioriteettituki &lt;24 h</li>
+            </ul>
+            <Link
+              to="/upgrade"
+              className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-sm bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition hover:shadow-glow"
+            >
+              Päivitä Pro-versioon
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+
+        <div className="mt-12 overflow-hidden rounded-xl border border-border bg-surface/40">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-surface text-xs uppercase tracking-wider text-muted-foreground">
+              <tr>
+                <th className="px-6 py-3 font-semibold">Ominaisuus</th>
+                <th className="px-6 py-3 font-semibold">Ilmainen</th>
+                <th className="px-6 py-3 font-semibold text-primary">Pro</th>
+              </tr>
+            </thead>
+            <tbody>
+              {compare.map((row, i) => (
+                <tr key={row.feature} className={i % 2 ? "bg-surface/30" : ""}>
+                  <td className="px-6 py-4 font-medium">{row.feature}</td>
+                  <td className="px-6 py-4 text-muted-foreground">
+                    {typeof row.free === "boolean"
+                      ? (row.free ? <Check className="h-4 w-4 text-primary" /> : <X className="h-4 w-4 text-muted-foreground" />)
+                      : row.free}
+                  </td>
+                  <td className="px-6 py-4">
+                    {typeof row.pro === "boolean"
+                      ? (row.pro ? <Check className="h-4 w-4 text-primary" /> : <X className="h-4 w-4 text-muted-foreground" />)
+                      : <span className="font-semibold text-foreground">{row.pro}</span>}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <p className="mt-6 text-center text-xs text-muted-foreground">
+          30 päivän rahat takaisin -takuu. Ei sitoutumista.
+        </p>
       </div>
     </section>
   );
