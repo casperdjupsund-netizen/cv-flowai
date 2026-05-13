@@ -41,7 +41,13 @@ function DashboardPage() {
         <div className="mt-10">
           <h2 className="font-display text-xl font-semibold">Tulossa pian</h2>
           <div className="mt-4 grid gap-4 md:grid-cols-2">
-            <Card icon={UserSquare2} title="Profiili" desc="Täytä henkilötiedot, työkokemus ja koulutus." />
+          <Link to="/profile" className="block">
+            <div className="rounded-xl border border-border bg-surface p-6 transition hover:border-primary/50">
+              <UserSquare2 className="h-6 w-6 text-primary" />
+              <h3 className="mt-4 font-display text-lg font-semibold">Profiili</h3>
+              <p className="mt-1 text-sm text-muted-foreground">Täytä henkilötiedot, työkokemus ja koulutus.</p>
+            </div>
+          </Link>
             <Card icon={FileText} title="CV" desc="Generoi räätälöity ansioluettelo." />
             <Card icon={Mail} title="Saatekirje" desc="Henkilökohtainen saatekirje työilmoitukseen." />
             <Card icon={Send} title="Sähköposti" desc="Lyhyt yhteydenotto rekrytoijalle." />
