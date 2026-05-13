@@ -206,15 +206,19 @@ function FAQ() {
   const items = [
     {
       q: "Miten ilmainen kokeilu toimii?",
-      a: "Luot tilin ilman luottokorttia ja pääset heti generoimaan dokumentteja. Mitään ei veloiteta ennen kuin valitset maksullisen suunnitelman.",
+      a: "Saat tehdä yhden version jokaisesta dokumenttityypistä — yhden CV:n, yhden saatekirjeen ja yhden rekrytointisähköpostin — täysin ilmaiseksi ja ilman luottokorttia.",
     },
     {
-      q: "Kuinka monta dokumenttia voin tehdä ilmaiseksi?",
-      a: "Ilmaisella tilillä saat 3 dokumenttia kuukaudessa — esimerkiksi yhden CV:n, saatekirjeen ja rekrytointisähköpostin.",
+      q: "Mitä ilmaiskokeilun jälkeen tapahtuu?",
+      a: "Kun olet käyttänyt ilmaiset versiot, sinun täytyy päivittää maksulliseen suunnitelmaan jatkaaksesi uusien dokumenttien luomista.",
     },
     {
       q: "Milloin veloitus alkaa?",
-      a: "Veloitus alkaa vasta jos päivität maksulliseen suunnitelmaan. Ilmaista käyttöä voit jatkaa niin pitkään kuin haluat ilman maksuja.",
+      a: "Veloitus alkaa vasta kun ilmaiskokeilusi on täyttynyt ja päätät vaihtaa maksulliseen versioon. Ennen sitä mitään ei veloiteta.",
+    },
+    {
+      q: "Mitä maksullinen versio sisältää?",
+      a: "Maksullinen versio maksaa 12,99 € / kk ja sisältää rajattoman määrän CV:itä, saatekirjeitä ja rekrytointisähköposteja.",
     },
     {
       q: "Voinko peruuttaa milloin tahansa?",
@@ -256,7 +260,7 @@ function CTA() {
         <h2 className="font-display text-4xl font-bold tracking-tight sm:text-5xl text-balance">
           Aloita ilmainen kokeilu
         </h2>
-        <p className="mt-4 text-muted-foreground">3 dokumenttia kuukaudessa veloituksetta.</p>
+        <p className="mt-4 text-muted-foreground">Yksi CV, saatekirje ja rekrytointisähköposti veloituksetta. Sen jälkeen 12,99 € / kk rajattomasti.</p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
           <Link
             to="/signup"
