@@ -136,6 +136,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          ai_notes: string | null
           bio: string | null
           created_at: string
           email: string | null
@@ -152,6 +153,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          ai_notes?: string | null
           bio?: string | null
           created_at?: string
           email?: string | null
@@ -168,6 +170,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          ai_notes?: string | null
           bio?: string | null
           created_at?: string
           email?: string | null

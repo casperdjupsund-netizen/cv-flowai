@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Check, Loader2, ArrowLeft, Plus, Trash2, Briefcase, GraduationCap } from "lucide-react";
+import { Check, Loader2, ArrowLeft, Plus, Trash2, Briefcase, GraduationCap, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/profile")({
   component: ProfilePage,
@@ -25,6 +25,7 @@ type ProfileForm = {
   linkedin: string;
   bio: string;
   skills: string;
+  ai_notes: string;
 };
 
 const EMPTY: ProfileForm = {
@@ -37,6 +38,7 @@ const EMPTY: ProfileForm = {
   linkedin: "",
   bio: "",
   skills: "",
+  ai_notes: "",
 };
 
 type ExperienceRow = {
@@ -81,7 +83,7 @@ function ProfilePage() {
       const [{ data: profile, error }, { data: exps }, { data: edus }] = await Promise.all([
         supabase
           .from("profiles")
-          .select("first_name,last_name,job_title,email,phone,location,linkedin,bio,skills")
+          .select("first_name,last_name,job_title,email,phone,location,linkedin,bio,skills,ai_notes")
           .eq("id", user.id)
           .maybeSingle(),
         supabase
@@ -109,6 +111,7 @@ function ProfilePage() {
           linkedin: profile.linkedin ?? "",
           bio: profile.bio ?? "",
           skills: profile.skills ?? "",
+          ai_notes: profile.ai_notes ?? "",
         });
       } else {
         setForm((f) => ({ ...f, email: user.email ?? "" }));
@@ -415,6 +418,27 @@ function ProfilePage() {
             onChange={(v) => update("skills", v)}
             placeholder="React, TypeScript, Tiimityö, Asiakaspalvelu..."
             rows={3}
+          />
+        </div>
+
+        {/* AI-muistiinpanot */}
+        <div className="mt-6 space-y-4 rounded-xl border border-primary/30 bg-surface p-6">
+          <div>
+            <h2 className="flex items-center gap-2 font-display text-lg font-semibold">
+              <Sparkles className="h-4 w-4 text-primary" /> AI-muistiinpanot
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Vapaat ohjeet tekoälylle. AI muistaa nämä joka kerta kun luot dokumentin.
+              Esimerkiksi haluamasi sävy, painotukset, asiat joita välttää,
+              tai erityispiirteet joita haluat tuoda esiin.
+            </p>
+          </div>
+          <TextField
+            label="Ohjeet ja muistiinpanot"
+            value={form.ai_notes}
+            onChange={(v) => update("ai_notes", v)}
+            placeholder="esim. Käytä asiallista mutta lämmintä sävyä. Painota johtamiskokemustani. Älä mainitse työttömyysjaksoa 2020."
+            rows={5}
           />
         </div>
 
