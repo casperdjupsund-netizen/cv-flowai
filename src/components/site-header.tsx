@@ -42,6 +42,9 @@ export function SiteHeader() {
               }`}
             />
             CVFLOW PRO
+            <span className="ml-1 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-foreground">
+              −45%
+            </span>
           </Link>
           {user ? (
             <>
