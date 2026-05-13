@@ -142,6 +142,51 @@ function DashboardPage() {
             </div>
           )}
         </div>
+
+        <div className="mt-12">
+          <h2 className="font-display text-xl font-semibold">Dokumenttini</h2>
+          {docsLoading ? (
+            <div className="mt-4 h-24 animate-pulse rounded-xl border border-border bg-surface" />
+          ) : docs.length === 0 ? (
+            <p className="mt-4 rounded-xl border border-dashed border-border bg-surface/50 p-6 text-sm text-muted-foreground">
+              Ei vielä luotuja dokumentteja. Aloita yltä valitsemalla dokumenttityyppi.
+            </p>
+          ) : (
+            <ul className="mt-4 space-y-3">
+              {docs.map((d) => {
+                const label = DOC_TYPE_LABELS[d.type as DocType] ?? d.type;
+                return (
+                  <li
+                    key={d.id}
+                    className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-surface p-4"
+                  >
+                    <div className="min-w-0">
+                      <p className="font-display text-base font-semibold">{label}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Luotu {new Date(d.created_at).toLocaleDateString("fi-FI")}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Link
+                        to="/documents/$id"
+                        params={{ id: d.id }}
+                        className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm hover:bg-surface-elevated"
+                      >
+                        <Eye className="h-3.5 w-3.5" /> Esikatsele
+                      </Link>
+                      <button
+                        onClick={() => downloadDocumentPdf(d)}
+                        className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
+                      >
+                        <Download className="h-3.5 w-3.5" /> PDF
+                      </button>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
       </main>
     </div>
   );
