@@ -128,7 +128,7 @@ export const generateDocument = createServerFn({ method: "POST" })
     try {
       const { output } = await generateText({
         model,
-        output: Output.object({ schema: OutputSchemas[data.type] }),
+        output: Output.object({ schema: OutputSchemas[data.type] as never }),
         system: SYSTEM_PROMPTS[data.type],
         prompt: `KÄYTTÄJÄN PROFIILI:\n${profilePrompt}\n\nTYÖPAIKKAILMOITUS:\n${data.job_posting}\n\nLuo dokumentti, joka käyttää profiilin tietoja ja kohdistuu työpaikkailmoituksen vaatimuksiin.`,
       });
