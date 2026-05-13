@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { downloadDocumentPdf, type DocumentRecord } from "@/lib/pdf";
 import { DOC_TYPE_LABELS, type DocType } from "@/lib/usage";
 import { ArrowLeft, Download, Eye, FileText, Mail, Send, Search } from "lucide-react";
+import { PendingGenerations } from "@/components/PendingGenerations";
 
 export const Route = createFileRoute("/history")({
   component: HistoryPage,
@@ -126,6 +127,10 @@ function HistoryPage() {
               className="w-64 rounded-md border border-border bg-surface py-1.5 pl-9 pr-3 text-sm outline-none focus:border-primary"
             />
           </div>
+        </div>
+
+        <div className="mt-6">
+          <PendingGenerations />
         </div>
 
         <div className="mt-8 space-y-8">
