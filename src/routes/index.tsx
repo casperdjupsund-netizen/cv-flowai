@@ -218,49 +218,9 @@ function FAQ() {
     },
     {
       q: "Mitä maksullinen versio sisältää?",
-      a: "Maksullinen versio maksaa 12,99 € / kk ja sisältää rajattoman määrän CV:itä, saatekirjeitä ja rekrytointisähköposteja.",
-    },
-    {
-      q: "Voinko peruuttaa milloin tahansa?",
-      a: "Kyllä. Maksullisen tilauksen voi perua koska tahansa, eikä sitoutumisaikoja ole.",
-    },
-  ];
-  return (
-    <section id="faq" className="border-t border-border/60 bg-surface/30 py-24">
-      <div className="mx-auto max-w-3xl px-6">
-        <div className="text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1 text-xs text-muted-foreground">
-            <HelpCircle className="h-3.5 w-3.5 text-primary" />
-            Usein kysyttyä
-          </div>
-          <h2 className="mt-4 font-display text-4xl font-bold tracking-tight">Vastauksia kysymyksiin</h2>
-        </div>
-        <div className="mt-10 divide-y divide-border rounded-xl border border-border bg-surface">
-          {items.map((it) => (
-            <details key={it.q} className="group p-6">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4">
-                <span className="font-display text-base font-semibold">{it.q}</span>
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-border text-muted-foreground transition group-open:rotate-45">
-                  +
-                </span>
-              </summary>
-              <p className="mt-3 text-sm text-muted-foreground">{it.a}</p>
-            </details>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function CTA() {
-  return (
-    <section className="py-24">
-      <div className="mx-auto max-w-3xl px-6 text-center">
-        <h2 className="font-display text-4xl font-bold tracking-tight sm:text-5xl text-balance">
-          Aloita ilmainen kokeilu
-        </h2>
-        <p className="mt-4 text-muted-foreground">Yksi CV, saatekirje ja rekrytointisähköposti veloituksetta. Sen jälkeen 12,99 € / kk rajattomasti.</p>
+      a: "Maksullinen versio maksaa 14,99 € / kk ja sisältää rajattoman määrän CV:itä, saatekirjeitä ja rekrytointisähköposteja.",
+...
+        <p className="mt-4 text-muted-foreground">Yksi CV, saatekirje ja rekrytointisähköposti veloituksetta. Sen jälkeen 14,99 € / kk rajattomasti.</p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
           <Link
             to="/signup"
