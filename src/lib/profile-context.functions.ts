@@ -75,51 +75,58 @@ function summarizeContent(content: unknown, maxLen = 600): string {
  * aiemmin luodut dokumentit (per tyyppi), jotta AI pysyy linjassa
  * käyttäjän aiempien valintojen kanssa.
  */
+/** Sisäinen lataaja, jota voi kutsua toisista server-funktioista. */
+export async function loadProfileContext(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
+  userId: string,
+): Promise<ProfileContext> {
+  const [
+    { data: profile },
+    { data: experience },
+    { data: education },
+    { data: docs },
+  ] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("first_name,last_name,job_title,email,phone,location,linkedin,bio,skills,ai_notes")
+      .eq("id", userId)
+      .maybeSingle(),
+    supabase
+      .from("experience")
+      .select("id,title,company,start_date,end_date,description")
+      .eq("profile_id", userId)
+      .order("order_index", { ascending: true }),
+    supabase
+      .from("education")
+      .select("id,school,degree,major,year")
+      .eq("profile_id", userId)
+      .order("order_index", { ascending: true }),
+    supabase
+      .from("documents")
+      .select("type,created_at,job_posting,content")
+      .eq("profile_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(6),
+  ]);
+
+  return {
+    profile: profile ?? null,
+    experience: (experience ?? []) as ProfileContext["experience"],
+    education: (education ?? []) as ProfileContext["education"],
+    priorDocuments: (docs ?? []).map((d: { type: string; created_at: string; job_posting: string | null; content: unknown }) => ({
+      type: d.type,
+      created_at: d.created_at,
+      job_posting: d.job_posting,
+      summary: summarizeContent(d.content),
+    })),
+  };
+}
+
 export const getProfileContext = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<ProfileContext> => {
-    const { supabase, userId } = context;
-
-    const [
-      { data: profile },
-      { data: experience },
-      { data: education },
-      { data: docs },
-    ] = await Promise.all([
-      supabase
-        .from("profiles")
-        .select("first_name,last_name,job_title,email,phone,location,linkedin,bio,skills,ai_notes")
-        .eq("id", userId)
-        .maybeSingle(),
-      supabase
-        .from("experience")
-        .select("id,title,company,start_date,end_date,description")
-        .eq("profile_id", userId)
-        .order("order_index", { ascending: true }),
-      supabase
-        .from("education")
-        .select("id,school,degree,major,year")
-        .eq("profile_id", userId)
-        .order("order_index", { ascending: true }),
-      supabase
-        .from("documents")
-        .select("type,created_at,job_posting,content")
-        .eq("profile_id", userId)
-        .order("created_at", { ascending: false })
-        .limit(6),
-    ]);
-
-    return {
-      profile: profile ?? null,
-      experience: (experience ?? []) as ProfileContext["experience"],
-      education: (education ?? []) as ProfileContext["education"],
-      priorDocuments: (docs ?? []).map((d) => ({
-        type: d.type,
-        created_at: d.created_at,
-        job_posting: d.job_posting,
-        summary: summarizeContent(d.content),
-      })),
-    };
+    return loadProfileContext(context.supabase, context.userId);
   });
 
 /**
