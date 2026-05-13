@@ -17,6 +17,28 @@ function DashboardPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const usage = useDocumentUsage();
+  const [docs, setDocs] = useState<DocumentRecord[]>([]);
+  const [docsLoading, setDocsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      setDocsLoading(true);
+      const { data } = await supabase
+        .from("documents")
+        .select("id, type, created_at, job_posting, content")
+        .eq("profile_id", user.id)
+        .order("created_at", { ascending: false });
+      if (!cancelled) {
+        setDocs((data ?? []) as DocumentRecord[]);
+        setDocsLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user, usage.counts]);
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/login" });
