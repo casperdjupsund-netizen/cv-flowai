@@ -272,7 +272,7 @@ function ProPricing() {
     { feature: "Prioriteettituki", free: false, pro: true },
   ];
   return (
-    <section className="relative overflow-hidden border-t border-border/60 py-24">
+    <section id="pro" className="relative scroll-mt-20 overflow-hidden border-t border-border/60 py-24">
       <div className="absolute inset-0 -z-10 bg-gradient-to-b from-primary/10 via-background to-background" />
       <div className="mx-auto max-w-5xl px-6">
         <div className="text-center">
