@@ -165,7 +165,7 @@ function DocumentPage() {
     const newContent = sectionsToContent(doc, draft);
     const { error } = await supabase
       .from("documents")
-      .update({ content: newContent })
+      .update({ content: newContent as never })
       .eq("id", doc.id);
     setSaving(false);
     if (error) {
