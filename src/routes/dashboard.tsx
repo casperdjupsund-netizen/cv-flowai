@@ -10,6 +10,8 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { downloadDocumentPdf, type DocumentRecord } from "@/lib/pdf";
 import { generateDocument } from "@/lib/generate-document.functions";
+import { useGenerationTracker, useOnGenerationDone } from "@/lib/generation-tracker";
+import { PendingGenerations } from "@/components/PendingGenerations";
 import {
   Dialog,
   DialogContent,
@@ -67,8 +69,21 @@ function DashboardPage() {
 
   const [activeType, setActiveType] = useState<DocType | null>(null);
   const [jobPosting, setJobPosting] = useState("");
-  const [generating, setGenerating] = useState(false);
   const generateFn = useServerFn(generateDocument);
+  const tracker = useGenerationTracker();
+
+  // Refresh usage + recent docs when any generation finishes (even from another page).
+  useOnGenerationDone(async (job) => {
+    await usage.refresh();
+    if (job.status === "done" && user) {
+      const { data } = await supabase
+        .from("documents")
+        .select("id, type, created_at, job_posting, content")
+        .eq("profile_id", user.id)
+        .order("created_at", { ascending: false });
+      setDocs((data ?? []) as DocumentRecord[]);
+    }
+  });
 
   const handleCreate = (type: DocType) => {
     if (!usage.canCreate(type)) {
@@ -80,30 +95,23 @@ function DashboardPage() {
     setJobPosting("");
   };
 
-  const handleGenerate = async () => {
+  const handleGenerate = () => {
     if (!activeType || jobPosting.trim().length < 10) {
       toast.error("Liitä ensin työpaikkailmoituksen teksti.");
       return;
     }
-    setGenerating(true);
-    try {
-      const res = await generateFn({
-        data: { type: activeType, job_posting: jobPosting.trim() },
-      });
-      if (!res.ok) {
-        toast.error(res.error);
-        if ("upgrade" in res && res.upgrade) navigate({ to: "/upgrade" });
-        return;
+    const type = activeType;
+    const posting = jobPosting.trim();
+    tracker.start(type, posting, async () => {
+      const res = await generateFn({ data: { type, job_posting: posting } });
+      if (!res.ok && "upgrade" in res && res.upgrade) {
+        navigate({ to: "/upgrade" });
       }
-      toast.success("Dokumentti luotu!");
-      setActiveType(null);
-      await usage.refresh();
-      navigate({ to: "/documents/$id", params: { id: res.id } });
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Generointi epäonnistui");
-    } finally {
-      setGenerating(false);
-    }
+      return res;
+    });
+    toast(`Generointi aloitettu — saat ilmoituksen kun ${DOC_TYPE_LABELS[type].toLowerCase()} on valmis.`);
+    setActiveType(null);
+    setJobPosting("");
   };
 
   const isPro = usage.tier === "pro";
