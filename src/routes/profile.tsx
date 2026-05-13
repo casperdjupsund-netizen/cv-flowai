@@ -111,6 +111,7 @@ function ProfilePage() {
           linkedin: profile.linkedin ?? "",
           bio: profile.bio ?? "",
           skills: profile.skills ?? "",
+          ai_notes: profile.ai_notes ?? "",
         });
       } else {
         setForm((f) => ({ ...f, email: user.email ?? "" }));
