@@ -64,14 +64,45 @@ function DashboardPage() {
     );
   }
 
+  const [activeType, setActiveType] = useState<DocType | null>(null);
+  const [jobPosting, setJobPosting] = useState("");
+  const [generating, setGenerating] = useState(false);
+  const generateFn = useServerFn(generateDocument);
+
   const handleCreate = (type: DocType) => {
     if (!usage.canCreate(type)) {
       toast.error(`Olet käyttänyt ilmaisen ${DOC_TYPE_LABELS[type].toLowerCase()}-versiosi`);
       navigate({ to: "/upgrade" });
       return;
     }
-    // Create-flow tulossa
-    toast.info("Dokumenttien luonti tulossa pian");
+    setActiveType(type);
+    setJobPosting("");
+  };
+
+  const handleGenerate = async () => {
+    if (!activeType || jobPosting.trim().length < 10) {
+      toast.error("Liitä ensin työpaikkailmoituksen teksti.");
+      return;
+    }
+    setGenerating(true);
+    try {
+      const res = await generateFn({
+        data: { type: activeType, job_posting: jobPosting.trim() },
+      });
+      if (!res.ok) {
+        toast.error(res.error);
+        if ("upgrade" in res && res.upgrade) navigate({ to: "/upgrade" });
+        return;
+      }
+      toast.success("Dokumentti luotu!");
+      setActiveType(null);
+      await usage.refresh();
+      navigate({ to: "/documents/$id", params: { id: res.id } });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Generointi epäonnistui");
+    } finally {
+      setGenerating(false);
+    }
   };
 
   const isPro = usage.tier === "pro";
