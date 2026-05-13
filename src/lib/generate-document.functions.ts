@@ -83,65 +83,8 @@ export const generateDocument = createServerFn({ method: "POST" })
       };
     }
 
-    // 2. Hae profiilikonteksti (sama logiikka kuin getProfileContext)
-    const [
-      { data: profile },
-      { data: experience },
-      { data: education },
-      { data: priorDocs },
-    ] = await Promise.all([
-      supabase
-        .from("profiles")
-        .select("first_name,last_name,job_title,email,phone,location,linkedin,bio,skills,ai_notes")
-        .eq("id", userId)
-        .maybeSingle(),
-      supabase
-        .from("experience")
-        .select("id,title,company,start_date,end_date,description")
-        .eq("profile_id", userId)
-        .order("order_index", { ascending: true }),
-      supabase
-        .from("education")
-        .select("id,school,degree,major,year")
-        .eq("profile_id", userId)
-        .order("order_index", { ascending: true }),
-      supabase
-        .from("documents")
-        .select("type,created_at,job_posting,content")
-        .eq("profile_id", userId)
-        .order("created_at", { ascending: false })
-        .limit(6),
-    ]);
-
-    const ctx: ProfileContext = {
-      profile: profile ?? null,
-      experience: (experience ?? []) as ProfileContext["experience"],
-      education: (education ?? []) as ProfileContext["education"],
-      priorDocuments: (priorDocs ?? []).map((d) => {
-        let summary = "";
-        const c = d.content;
-        if (c && typeof c === "object") {
-          const obj = c as Record<string, unknown>;
-          if (Array.isArray(obj.sections)) {
-            summary = (obj.sections as Array<Record<string, unknown>>)
-              .map((s) => `${s.heading ?? ""}: ${typeof s.body === "string" ? s.body : ""}`)
-              .join(" | ");
-          } else if (typeof obj.body === "string") {
-            summary = (typeof obj.subject === "string" ? `Aihe: ${obj.subject}. ` : "") + obj.body;
-          }
-        } else if (typeof c === "string") {
-          summary = c;
-        }
-        summary = summary.replace(/\s+/g, " ").trim();
-        if (summary.length > 600) summary = summary.slice(0, 600) + "…";
-        return {
-          type: d.type,
-          created_at: d.created_at,
-          job_posting: d.job_posting,
-          summary,
-        };
-      }),
-    };
+    // 2. Hae profiilikonteksti samalla logiikalla kuin getProfileContext
+    const ctx = await loadProfileContext(supabase, userId);
 
     if (!ctx.profile?.first_name && !ctx.profile?.last_name) {
       return {
