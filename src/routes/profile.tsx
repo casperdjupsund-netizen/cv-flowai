@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Check, Loader2, ArrowLeft, Plus, Trash2, Briefcase, GraduationCap } from "lucide-react";
+import { Check, Loader2, ArrowLeft, Plus, Trash2, Briefcase, GraduationCap, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/profile")({
   component: ProfilePage,
