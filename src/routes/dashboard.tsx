@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/lib/auth";
 import { SiteHeader } from "@/components/site-header";
 import { FileText, Mail, Send, UserSquare2, ArrowRight, Lock, Sparkles, Download, Eye, Loader2 } from "lucide-react";
-import { useDocumentUsage, DOC_TYPE_LABELS, FREE_LIMIT_PER_TYPE, type DocType } from "@/lib/usage";
+import { useDocumentUsage, DOC_TYPE_LABELS, FREE_MONTHLY_LIMIT, type DocType } from "@/lib/usage";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { downloadDocumentPdf, type DocumentRecord } from "@/lib/pdf";
@@ -126,8 +126,9 @@ function DashboardPage() {
           </div>
           {!isPro && (
             <p className="mt-4 text-sm text-muted-foreground">
-              Ilmaisella kokeilulla voit luoda yhden version jokaisesta dokumenttityypistä.
-              Sen jälkeen siirry Pro-versioon (12,99 € / kk) jatkaaksesi.
+              Ilmaisella tilillä voit luoda {FREE_MONTHLY_LIMIT} dokumenttia kuukaudessa
+              ({usage.monthlyTotal} / {FREE_MONTHLY_LIMIT} käytetty).
+              Pro: 14 €/kk tai 99 €/v — rajaton käyttö.
             </p>
           )}
         </div>
@@ -153,6 +154,7 @@ function DashboardPage() {
               type="cv"
               count={usage.counts.cv}
               isPro={isPro}
+              monthlyTotal={usage.monthlyTotal}
               onCreate={handleCreate}
             />
             <DocCard
@@ -160,6 +162,7 @@ function DashboardPage() {
               type="cover_letter"
               count={usage.counts.cover_letter}
               isPro={isPro}
+              monthlyTotal={usage.monthlyTotal}
               onCreate={handleCreate}
             />
             <DocCard
@@ -167,6 +170,7 @@ function DashboardPage() {
               type="email"
               count={usage.counts.email}
               isPro={isPro}
+              monthlyTotal={usage.monthlyTotal}
               onCreate={handleCreate}
             />
           </div>
@@ -286,15 +290,17 @@ function DocCard({
   type,
   count,
   isPro,
+  monthlyTotal,
   onCreate,
 }: {
   icon: React.ComponentType<{ className?: string }>;
   type: DocType;
   count: number;
   isPro: boolean;
+  monthlyTotal: number;
   onCreate: (t: DocType) => void;
 }) {
-  const used = !isPro && count >= FREE_LIMIT_PER_TYPE;
+  const used = !isPro && monthlyTotal >= FREE_MONTHLY_LIMIT;
   return (
     <button
       onClick={() => onCreate(type)}
@@ -304,15 +310,13 @@ function DocCard({
         <Icon className="h-6 w-6 text-primary" />
         {used && (
           <span className="inline-flex items-center gap-1 rounded-full bg-muted/40 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-            <Lock className="h-3 w-3" /> Käytetty
+            <Lock className="h-3 w-3" /> Kuukausiraja täynnä
           </span>
         )}
       </div>
       <h3 className="mt-4 font-display text-lg font-semibold">{DOC_TYPE_LABELS[type]}</h3>
       <p className="mt-1 text-sm text-muted-foreground">
-        {isPro
-          ? `${count} luotu — rajaton käyttö`
-          : `${count} / ${FREE_LIMIT_PER_TYPE} käytetty`}
+        {isPro ? `${count} luotu — rajaton käyttö` : `${count} luotu tässä kuussa`}
       </p>
       <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary">
         {used ? "Päivitä Pro" : "Luo uusi"} <ArrowRight className="h-3.5 w-3.5" />
