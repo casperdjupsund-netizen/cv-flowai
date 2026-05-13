@@ -8,8 +8,8 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <Link to="/" className="flex items-center gap-2">
-          <img src={logo} alt="CVFlow" className="h-9 w-9 invert" />
-          <span className="font-display text-lg font-bold tracking-tight">CVFlow</span>
+          <img src={logo} alt="CVFLOW" className="h-9 w-9 invert" />
+          <span className="font-display text-lg font-bold tracking-tight">CVFLOW</span>
         </Link>
         <nav className="flex items-center gap-2">
           {user ? (
