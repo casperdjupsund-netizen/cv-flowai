@@ -206,9 +206,9 @@ function CTA() {
     <section className="py-24">
       <div className="mx-auto max-w-3xl px-6 text-center">
         <h2 className="font-display text-4xl font-bold tracking-tight sm:text-5xl text-balance">
-          Aloita ilmaiseksi. Lataa CV alle 2 minuutissa.
+          Aloita ilmainen kokeilu
         </h2>
-        <p className="mt-4 text-muted-foreground">Ei luottokorttia. 3 dokumenttia kuukaudessa veloituksetta.</p>
+        <p className="mt-4 text-muted-foreground">3 dokumenttia kuukaudessa veloituksetta.</p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
           <Link
             to="/signup"
