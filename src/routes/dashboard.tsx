@@ -231,6 +231,52 @@ function DashboardPage() {
           )}
         </div>
       </main>
+
+      <Dialog
+        open={activeType !== null}
+        onOpenChange={(o) => {
+          if (!o && !generating) setActiveType(null);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              Luo {activeType ? DOC_TYPE_LABELS[activeType].toLowerCase() : "dokumentti"}
+            </DialogTitle>
+            <DialogDescription>
+              Liitä työpaikkailmoituksen teksti — tekoäly hyödyntää profiilisi tietoja
+              (työkokemus, koulutus, taidot) ja räätälöi sisällön ilmoitukseen.
+            </DialogDescription>
+          </DialogHeader>
+          <Textarea
+            value={jobPosting}
+            onChange={(e) => setJobPosting(e.target.value)}
+            placeholder="Liitä tähän koko työpaikkailmoituksen teksti..."
+            rows={10}
+            disabled={generating}
+          />
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setActiveType(null)}
+              disabled={generating}
+            >
+              Peruuta
+            </Button>
+            <Button onClick={handleGenerate} disabled={generating}>
+              {generating ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generoidaan...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="mr-2 h-4 w-4" /> Luo tekoälyllä
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
