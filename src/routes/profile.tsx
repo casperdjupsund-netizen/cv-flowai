@@ -421,6 +421,27 @@ function ProfilePage() {
           />
         </div>
 
+        {/* AI-muistiinpanot */}
+        <div className="mt-6 space-y-4 rounded-xl border border-primary/30 bg-surface p-6">
+          <div>
+            <h2 className="flex items-center gap-2 font-display text-lg font-semibold">
+              <Sparkles className="h-4 w-4 text-primary" /> AI-muistiinpanot
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Vapaat ohjeet tekoälylle. AI muistaa nämä joka kerta kun luot dokumentin.
+              Esimerkiksi haluamasi sävy, painotukset, asiat joita välttää,
+              tai erityispiirteet joita haluat tuoda esiin.
+            </p>
+          </div>
+          <TextField
+            label="Ohjeet ja muistiinpanot"
+            value={form.ai_notes}
+            onChange={(v) => update("ai_notes", v)}
+            placeholder="esim. Käytä asiallista mutta lämmintä sävyä. Painota johtamiskokemustani. Älä mainitse työttömyysjaksoa 2020."
+            rows={5}
+          />
+        </div>
+
         <div className="mt-6 flex items-center justify-end gap-3">
           <span className="text-xs text-muted-foreground">Muutokset tallentuvat automaattisesti</span>
           <Button onClick={handleManualSave} disabled={status === "saving"}>
