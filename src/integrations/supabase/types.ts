@@ -148,6 +148,7 @@ export type Database = {
           phone: string | null
           photo_url: string | null
           skills: string | null
+          subscription_tier: string
           updated_at: string
         }
         Insert: {
@@ -163,6 +164,7 @@ export type Database = {
           phone?: string | null
           photo_url?: string | null
           skills?: string | null
+          subscription_tier?: string
           updated_at?: string
         }
         Update: {
@@ -178,6 +180,7 @@ export type Database = {
           phone?: string | null
           photo_url?: string | null
           skills?: string | null
+          subscription_tier?: string
           updated_at?: string
         }
         Relationships: []
