@@ -1,12 +1,24 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/lib/auth";
 import { SiteHeader } from "@/components/site-header";
-import { FileText, Mail, Send, UserSquare2, ArrowRight, Lock, Sparkles, Download, Eye } from "lucide-react";
+import { FileText, Mail, Send, UserSquare2, ArrowRight, Lock, Sparkles, Download, Eye, Loader2 } from "lucide-react";
 import { useDocumentUsage, DOC_TYPE_LABELS, FREE_LIMIT_PER_TYPE, type DocType } from "@/lib/usage";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { downloadDocumentPdf, type DocumentRecord } from "@/lib/pdf";
+import { generateDocument } from "@/lib/generate-document.functions";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/dashboard")({
   component: DashboardPage,
@@ -52,14 +64,45 @@ function DashboardPage() {
     );
   }
 
+  const [activeType, setActiveType] = useState<DocType | null>(null);
+  const [jobPosting, setJobPosting] = useState("");
+  const [generating, setGenerating] = useState(false);
+  const generateFn = useServerFn(generateDocument);
+
   const handleCreate = (type: DocType) => {
     if (!usage.canCreate(type)) {
       toast.error(`Olet käyttänyt ilmaisen ${DOC_TYPE_LABELS[type].toLowerCase()}-versiosi`);
       navigate({ to: "/upgrade" });
       return;
     }
-    // Create-flow tulossa
-    toast.info("Dokumenttien luonti tulossa pian");
+    setActiveType(type);
+    setJobPosting("");
+  };
+
+  const handleGenerate = async () => {
+    if (!activeType || jobPosting.trim().length < 10) {
+      toast.error("Liitä ensin työpaikkailmoituksen teksti.");
+      return;
+    }
+    setGenerating(true);
+    try {
+      const res = await generateFn({
+        data: { type: activeType, job_posting: jobPosting.trim() },
+      });
+      if (!res.ok) {
+        toast.error(res.error);
+        if ("upgrade" in res && res.upgrade) navigate({ to: "/upgrade" });
+        return;
+      }
+      toast.success("Dokumentti luotu!");
+      setActiveType(null);
+      await usage.refresh();
+      navigate({ to: "/documents/$id", params: { id: res.id } });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Generointi epäonnistui");
+    } finally {
+      setGenerating(false);
+    }
   };
 
   const isPro = usage.tier === "pro";
@@ -188,6 +231,52 @@ function DashboardPage() {
           )}
         </div>
       </main>
+
+      <Dialog
+        open={activeType !== null}
+        onOpenChange={(o) => {
+          if (!o && !generating) setActiveType(null);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              Luo {activeType ? DOC_TYPE_LABELS[activeType].toLowerCase() : "dokumentti"}
+            </DialogTitle>
+            <DialogDescription>
+              Liitä työpaikkailmoituksen teksti — tekoäly hyödyntää profiilisi tietoja
+              (työkokemus, koulutus, taidot) ja räätälöi sisällön ilmoitukseen.
+            </DialogDescription>
+          </DialogHeader>
+          <Textarea
+            value={jobPosting}
+            onChange={(e) => setJobPosting(e.target.value)}
+            placeholder="Liitä tähän koko työpaikkailmoituksen teksti..."
+            rows={10}
+            disabled={generating}
+          />
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setActiveType(null)}
+              disabled={generating}
+            >
+              Peruuta
+            </Button>
+            <Button onClick={handleGenerate} disabled={generating}>
+              {generating ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generoidaan...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="mr-2 h-4 w-4" /> Luo tekoälyllä
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
